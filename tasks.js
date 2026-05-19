@@ -1,110 +1,119 @@
-/**
- * tasks.js — Вбудовані задачі для Машини Поста
- */
-
 const TASKS = {
 
-  // Збільшити унарне число на 1 (додати 1 мітку до хвоста)
-  inc: {
-    name: 'Збільшити число на 1',
-    tape: { 0:true, 1:true, 2:true },   // три мітки = число 3
+  add1: {
+    name: 'Додавання 1',
+    tape: { 3:true, 4:true, 5:true },
     head: 0,
-    program: [
-      { label: 'q1', type: 'jump_if_empty', target: 'q3' },
-      { label: 'q2', type: 'right' },
-      { label: 'q2b', type: 'jump', target: 'q1' },
-      { label: 'q3', type: 'mark' },
-      { label: 'q4', type: 'stop' },
-    ]
+    text:
+`1 >
+2 ?1;3
+3 <
+4 V
+5 !`
   },
 
-  // Зменшити унарне число на 1 (стерти першу мітку)
-  dec: {
-    name: 'Зменшити число на 1',
-    tape: { 0:true, 1:true, 2:true },
+ move_mark: {
+    name: 'Перенесення мітки до групи',
+    tape: { 0:true, 4:true, 5:true, 6:true },
     head: 0,
-    program: [
-      { label: 'q1', type: 'jump_if_empty', target: 'q3' },
-      { label: 'q2', type: 'erase' },
-      { label: 'q2b', type: 'stop' },
-      { label: 'q3', type: 'stop' },
-    ]
+    text:
+`1 >
+2 ?1;3
+3 X
+4 >
+5 ?4;6
+6 <
+7 v
+8 !`
   },
 
-  // Стерти всі мітки на стрічці (з поточної позиції вправо)
-  clear_all: {
-    name: 'Стерти всі мітки',
-    tape: { 0:true, 1:false, 2:true, 3:true, 4:false, 5:true },
+  add2: {
+    name: 'Додавання двох чисел',
+    tape: { 2:true, 3:true, 5:true, 6:true, 7:true },
     head: 0,
-    program: [
-      { label: 'q1', type: 'jump_if_empty', target: 'q3' },
-      { label: 'q2', type: 'erase' },
-      { label: 'q2b', type: 'jump', target: 'q1' },
-      { label: 'q3', type: 'right' },
-      // Зупинимось після 10 кроків вправо де пусто (простий варіант)
-      { label: 'q4', type: 'stop' },
-    ]
+    text:
+`1 >
+2 ?1;3
+3 >
+4 ?5;3
+5 V
+6 <
+7 ?8;6
+8 !`
   },
 
-  // Копіювання: зсунути каретку на 5 позицій вправо (символічне "копіювання позиції")
-  copy: {
-    name: 'Зсунути каретку на 5 вправо',
-    tape: { 2: true, 3: true },
+  sub1: {
+    name: 'Віднімання 1 від числа',
+    tape: { 4:true, 5:true, 6:true, 7:true, 8:true },
     head: 0,
-    program: [
-      { label: 'q1', type: 'right' },
-      { label: 'q2', type: 'right' },
-      { label: 'q3', type: 'right' },
-      { label: 'q4', type: 'right' },
-      { label: 'q5', type: 'right' },
-      { label: 'q6', type: 'stop' },
-    ]
+    text:
+`1 >
+2 ?1;3
+3 X
+4 <
+5 !`
   },
 
-  // Інвертувати: якщо мітка — стерти, якщо порожньо — поставити (4 клітинки)
-  invert: {
-    name: 'Інвертувати 4 клітинки',
-    tape: { 0:true, 1:false, 2:true, 3:false },
+mul2: {
+    name: 'Множення числа на 2',
+    tape: { 1:true, 2:true, 3:true, 4:true },
     head: 0,
-    program: [
-      // клітинка 1
-      { label: 'q1',  type: 'jump_if_mark',  target: 'erase1' },
-      { label: 'q1b', type: 'mark' },
-      { label: 'q1c', type: 'jump',           target: 'next1'  },
-      { label: 'erase1', type: 'erase' },
-      { label: 'next1',  type: 'right' },
-      // клітинка 2
-      { label: 'q2',  type: 'jump_if_mark',  target: 'erase2' },
-      { label: 'q2b', type: 'mark' },
-      { label: 'q2c', type: 'jump',           target: 'next2'  },
-      { label: 'erase2', type: 'erase' },
-      { label: 'next2',  type: 'right' },
-      // клітинка 3
-      { label: 'q3',  type: 'jump_if_mark',  target: 'erase3' },
-      { label: 'q3b', type: 'mark' },
-      { label: 'q3c', type: 'jump',           target: 'next3'  },
-      { label: 'erase3', type: 'erase' },
-      { label: 'next3',  type: 'right' },
-      // клітинка 4
-      { label: 'q4',  type: 'jump_if_mark',  target: 'erase4' },
-      { label: 'q4b', type: 'mark' },
-      { label: 'q4c', type: 'jump',           target: 'done'   },
-      { label: 'erase4', type: 'erase' },
-      { label: 'done',   type: 'stop' },
-    ]
+    text:
+`1 >
+2 ?1;3
+3 <
+4 >
+5 ?18;6
+6 X
+7 >
+8 ?9;7
+9 >
+10 ?11;9
+11 V
+12 >
+13 V
+14 <
+15 ?16;14
+16 <
+17 ?4;16
+18 !`
   },
 
-  // Зсунути каретку вправо поки є мітки, зупинитись на першій порожній
-  move_right: {
-    name: 'Знайти перший порожній рядок (→)',
-    tape: { 0:true, 1:true, 2:true, 3:false, 4:true },
+  parity: {
+    name: 'Перевірка на парність/непарність',
+    tape: { 1:true, 2:true, 3:true, 4:true, 5:true},
     head: 0,
-    program: [
-      { label: 'q1', type: 'jump_if_empty', target: 'done' },
-      { label: 'q2', type: 'right' },
-      { label: 'q3', type: 'jump', target: 'q1' },
-      { label: 'done', type: 'stop' },
-    ]
+    text:
+`1 >
+2 ?1;3
+3 X
+4 >
+5 ?9;6
+6 X
+7 >
+8 ?11;3
+9 V
+10 !
+11 V
+12 >
+13 V
+14 !`
+  },
+
+  del_every2: {
+    name: 'Видалення мітки через 1',
+    tape: { 1:true, 2:true, 3:true, 4:true, 5:true, 6:true },
+    head: 0,
+    text:
+`1 >
+2 ?1;3
+3 >
+4 ?8;5
+5 X
+6 >
+7 ?8;3
+8 !`
   },
 
 };
+

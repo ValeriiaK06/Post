@@ -1,135 +1,146 @@
-/**
- * machine.js — Логіка Машини Поста
- * Команди: mark, erase, right, left, jump_if_mark, jump_if_empty, jump, stop
- */
+
 
 class PostMachine {
   constructor() {
-    this.tape = {};          // { index: boolean } — true = мітка
-    this.head = 0;           // позиція каретки
-    this.program = [];       // [{label, type, target?}]
-    this.pc = 0;             // лічильник команд
+    this.tape    = {};
+    this.head    = 0;
+    this.program = [];   // [{n, type, a?, b?}]
+    this.current = 1;
+    this.steps   = 0;
+    this.halted  = false;
     this.running = false;
-    this.steps = 0;
-    this.halted = false;
   }
 
-  // ── Стрічка ──────────────────────────────────────────
-  read()              { return !!this.tape[this.head]; }
-  write(val)          { this.tape[this.head] = val; }
-  moveRight()         { this.head++; }
-  moveLeft()          { this.head--; }
+  read()      { return !!this.tape[this.head]; }
+  write(val)  { if (val) this.tape[this.head] = true; else delete this.tape[this.head]; }
+  clearTape() { this.tape = {}; this.head = 0; }
 
-  clearTape()         { this.tape = {}; this.head = 0; }
-
-  // ── Програма ─────────────────────────────────────────
-  setProgram(cmds)    { this.program = cmds; this.pc = 0; this.steps = 0; this.halted = false; }
-  reset()             {
-    this.head = 0; this.pc = 0; this.steps = 0;
-    this.running = false; this.halted = false;
+  setProgram(cmds) {
+    this.program = cmds;
+    this.current = cmds.length > 0 ? cmds[0].n : 1;
+    this.steps   = 0;
+    this.halted  = false;
   }
 
-  // ── Один крок ─────────────────────────────────────────
+  reset() {
+    this.head    = 0;
+    this.current = this.program.length > 0 ? this.program[0].n : 1;
+    this.steps   = 0;
+    this.halted  = false;
+    this.running = false;
+  }
+
   step() {
-    if (this.halted || this.program.length === 0) {
+    if (this.halted)
       return { done: true, reason: 'halt', step: this.steps };
-    }
-    if (this.pc >= this.program.length) {
+
+    const cmd = this.program.find(c => c.n === this.current);
+    if (!cmd) {
       this.halted = true;
-      return { done: true, reason: 'end_of_program', step: this.steps };
+      return { done: true, reason: `Команду №${this.current} не знайдено`, step: this.steps };
     }
 
-    const cmd = this.program[this.pc];
-    let next = this.pc + 1;
+    let next = this._nextN(cmd.n);
     let info = '';
 
     switch (cmd.type) {
       case 'mark':
         this.write(true);
-        info = `[${cmd.label}] Поставити мітку на позиції ${this.head}`;
+        info = `${cmd.n}: V — поставити мітку @ ${this.head}`;
         break;
 
       case 'erase':
         this.write(false);
-        info = `[${cmd.label}] Стерти мітку на позиції ${this.head}`;
+        info = `${cmd.n}: X — стерти мітку @ ${this.head}`;
         break;
 
       case 'right':
-        this.moveRight();
-        info = `[${cmd.label}] Каретка → ${this.head}`;
+        this.head++;
+        info = `${cmd.n}: > — каретка → ${this.head}`;
         break;
 
       case 'left':
-        this.moveLeft();
-        info = `[${cmd.label}] Каретка ← ${this.head}`;
+        this.head--;
+        info = `${cmd.n}: < — каретка ← ${this.head}`;
         break;
 
-      case 'jump_if_mark':
-        if (this.read()) {
-          const idx = this._findLabel(cmd.target);
-          if (idx === -1) {
-            this.halted = true;
-            return { done: true, reason: `Мітка "${cmd.target}" не знайдена`, step: this.steps };
-          }
-          next = idx;
-          info = `[${cmd.label}] Є мітка → перехід до ${cmd.target}`;
-        } else {
-          info = `[${cmd.label}] Немає мітки → продовжуємо`;
-        }
-        break;
-
-      case 'jump_if_empty':
-        if (!this.read()) {
-          const idx = this._findLabel(cmd.target);
-          if (idx === -1) {
-            this.halted = true;
-            return { done: true, reason: `Мітка "${cmd.target}" не знайдена`, step: this.steps };
-          }
-          next = idx;
-          info = `[${cmd.label}] Порожньо → перехід до ${cmd.target}`;
-        } else {
-          info = `[${cmd.label}] Є мітка → продовжуємо`;
-        }
-        break;
-
-      case 'jump': {
-        const idx = this._findLabel(cmd.target);
-        if (idx === -1) {
+      case 'branch': {
+  const marked = this.read();
+  const go = marked ? cmd.b : cmd.a;
+  info = `${cmd.n}: ? — ${marked ? 'V мітка → команда ' + cmd.b : '□ порожньо → команда ' + cmd.a}`;
+        const target = this.program.find(c => c.n === go);
+        if (!target) {
           this.halted = true;
-          return { done: true, reason: `Мітка "${cmd.target}" не знайдена`, step: this.steps };
+          return { done: true, reason: `Команду №${go} не знайдено`, step: this.steps };
         }
-        next = idx;
-        info = `[${cmd.label}] Безумовний перехід до ${cmd.target}`;
+        next = go;
         break;
       }
 
       case 'stop':
         this.halted = true;
-        info = `[${cmd.label}] ЗУПИНКА`;
         this.steps++;
-        return { done: true, reason: 'stop', info, step: this.steps, pc: this.pc };
+        info = `${cmd.n}: ! — ЗУПИНКА`;
+        return { done: true, reason: 'stop', info, step: this.steps, cmdN: cmd.n };
 
       default:
-        info = `[${cmd.label}] Невідома команда: ${cmd.type}`;
+        info = `${cmd.n}: невідомий тип «${cmd.type}»`;
     }
 
-    this.pc = next;
+    this.current = next;
     this.steps++;
-    return { done: false, info, step: this.steps, pc: this.pc - 1 };
+    return { done: false, info, step: this.steps, cmdN: cmd.n };
   }
 
-  _findLabel(lbl) {
-    return this.program.findIndex(c => c.label === lbl);
+  _nextN(n) {
+    const idx = this.program.findIndex(c => c.n === n);
+    if (idx === -1 || idx + 1 >= this.program.length) {
+      this.halted = true;
+      return n;
+    }
+    return this.program[idx + 1].n;
   }
 
   getState() {
     return {
-      head: this.head,
-      symbol: this.read() ? 'V' : '□',
-      pc: this.pc,
-      label: this.program[this.pc]?.label ?? '—',
-      steps: this.steps,
-      halted: this.halted,
+      head    : this.head,
+      symbol  : this.read() ? 'V' : '□',
+      current : this.current,
+      steps   : this.steps,
+      halted  : this.halted,
     };
   }
+}
+
+
+function parseProgram(text) {
+  const errors = [];
+  const cmds   = [];
+
+  text.split('\n').forEach((raw, li) => {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) return;
+
+    const m = line.match(/^(\d+)\s+(.+)$/);
+    if (!m) { errors.push(`Рядок ${li+1}: «${line}» — невірний формат (очікується: N команда)`); return; }
+
+    const n    = parseInt(m[1]);
+    const body = m[2].trim().toUpperCase();
+
+    if (body === '>')  { cmds.push({ n, type: 'right'  }); return; }
+    if (body === '<')  { cmds.push({ n, type: 'left'   }); return; }
+    if (body === 'V')  { cmds.push({ n, type: 'mark'   }); return; }
+    if (body === 'X')  { cmds.push({ n, type: 'erase'  }); return; }
+    if (body === '!')  { cmds.push({ n, type: 'stop'   }); return; }
+
+    const bm = body.match(/^\?(\d+);(\d+)$/);
+    if (bm) {
+      cmds.push({ n, type: 'branch', a: parseInt(bm[1]), b: parseInt(bm[2]) });
+      return;
+    }
+
+    errors.push(`Рядок ${li+1}: «${line}» — невідома команда «${body}»`);
+  });
+
+  return { cmds, errors };
 }

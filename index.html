@@ -11,7 +11,6 @@
 <body>
 <div class="app">
 
-  <!-- Header -->
   <header class="app-header">
     <div class="header-left">
       <div class="logo">
@@ -20,14 +19,16 @@
       </div>
     </div>
     <div class="header-center">
-      <select id="taskSelect" class="task-dropdown">
-        <option value="">— Оберіть задачу —</option>
-        <option value="inc">➕ Збільшити число на 1</option>
-        <option value="dec">➖ Зменшити число на 1</option>
-        <option value="copy">📋 Зсунути каретку на 5 вправо</option>
-        <option value="invert">🔄 Інвертувати 4 клітинки</option>
-        <option value="move_right">➡️ Знайти першу порожню клітинку</option>
-      </select>
+     <select id="taskSelect" class="task-dropdown">
+  <option value=""> Оберіть задачу </option>
+  <option value="add1">Додавання 1</option>
+  <option value="move_mark">Перенесення мітки до групи</option>
+  <option value="add2">Додавання двох чисел</option>
+  <option value="sub1">Віднімання 1 від числа</option>
+  <option value="mul2">Множення числа на 2</option>
+  <option value="parity">Перевірка на парність/непарність</option>
+  <option value="del_every2">Видалення мітки через 1</option>
+</select>
       <button class="btn btn-load" id="loadTaskBtn">Завантажити</button>
     </div>
     <div class="header-right">
@@ -38,55 +39,50 @@
     </div>
   </header>
 
-  <!-- Tape -->
   <section class="tape-section">
     <div class="tape-label">СТРІЧКА</div>
     <div class="tape-wrapper">
       <button class="tape-nav" id="tapeLeft">‹</button>
-      <div class="tape-viewport" id="tapeViewport">
+      <div class="tape-viewport">
         <div class="tape-track" id="tapeTrack"></div>
       </div>
       <button class="tape-nav" id="tapeRight">›</button>
     </div>
     <div class="tape-controls">
-      <button class="btn btn-sm btn-outline" id="clearTapeBtn">🧹 Очистити стрічку</button>
-      <span class="head-pos-label">Каретка: <span id="headPosDisplay">0</span></span>
-    </div>
+  <button class="btn btn-sm btn-outline" id="clearTapeBtn">Очистити стрічку</button>
+  <div class="head-move">
+    <button class="btn btn-sm btn-step" id="headMoveLeft">◀ Каретка</button>
+    <span class="head-pos-label">Позиція: <span id="headPosDisplay">0</span></span>
+    <button class="btn btn-sm btn-step" id="headMoveRight">Каретка ▶</button>
+  </div>
+</div>
   </section>
 
-  <!-- Workspace -->
   <div class="workspace">
 
-    <!-- Editor -->
     <section class="panel editor-panel">
       <div class="panel-header">
-        <span class="panel-title">✏️ Редактор програми</span>
+        <span class="panel-title">Редактор програми</span>
         <button class="btn btn-sm btn-outline" id="clearProgramBtn">🗑 Очистити</button>
       </div>
       <div class="panel-body editor-body">
-
-        <!-- Шпаргалка -->
         <div class="cheatsheet">
-          <span class="cs-item"><kbd>></kbd> вправо</span>
+          <span class="cs-item"><kbd>&gt;</kbd> вправо</span>
           <span class="cs-item"><kbd>&lt;</kbd> вліво</span>
           <span class="cs-item"><kbd>V</kbd> мітка</span>
           <span class="cs-item"><kbd>X</kbd> стерти</span>
           <span class="cs-item"><kbd>!</kbd> стоп</span>
-          <span class="cs-item"><kbd>?A;B</kbd> розгалуж.</span>
+         <span class="cs-item"><kbd>?A;B</kbd> порожньо→A, мітка→B</span>
         </div>
-
-        <textarea id="codeEditor" class="code-editor"
-          spellcheck="false"
+        <textarea id="codeEditor" class="code-editor" spellcheck="false"
           placeholder="# Приклад&#10;1 V&#10;2 >&#10;3 ?1;4&#10;4 !"></textarea>
-
         <div id="parseErrors" class="parse-errors" style="display:none"></div>
       </div>
     </section>
 
-    <!-- State + log -->
     <section class="panel state-panel">
       <div class="panel-header">
-        <span class="panel-title">📊 Стан машини</span>
+        <span class="panel-title">Стан машини</span>
       </div>
       <div class="panel-body">
         <div class="state-grid">
@@ -112,10 +108,9 @@
       </div>
     </section>
 
-    <!-- Parsed program view -->
     <section class="panel cmd-panel">
       <div class="panel-header">
-        <span class="panel-title">📋 Розпізнана програма</span>
+        <span class="panel-title">Розпізнана програма</span>
       </div>
       <div class="panel-body">
         <div class="cmd-list" id="cmdList"></div>
