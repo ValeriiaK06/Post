@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Машина Поста</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style/style.css"/>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo">
+        <span class="logo-icon">▣</span>
+        <span class="logo-text">POST<span class="logo-accent">Machine</span></span>
+      </div>
+    </div>
+    <div class="header-center">
+      <select id="taskSelect" class="task-dropdown">
+        <option value="">— Оберіть задачу —</option>
+        <option value="inc">➕ Збільшити число на 1</option>
+        <option value="dec">➖ Зменшити число на 1</option>
+        <option value="copy">📋 Зсунути каретку на 5 вправо</option>
+        <option value="invert">🔄 Інвертувати 4 клітинки</option>
+        <option value="move_right">➡️ Знайти першу порожню клітинку</option>
+      </select>
+      <button class="btn btn-load" id="loadTaskBtn">Завантажити</button>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-run"   id="runBtn">▶ Запустити</button>
+      <button class="btn btn-step"  id="stepBtn">⏭ Крок</button>
+      <button class="btn btn-stop"  id="stopBtn">⏹ Стоп</button>
+      <button class="btn btn-reset" id="resetBtn">↺ Скинути</button>
+    </div>
+  </header>
+
+  <!-- Tape -->
+  <section class="tape-section">
+    <div class="tape-label">СТРІЧКА</div>
+    <div class="tape-wrapper">
+      <button class="tape-nav" id="tapeLeft">‹</button>
+      <div class="tape-viewport" id="tapeViewport">
+        <div class="tape-track" id="tapeTrack"></div>
+      </div>
+      <button class="tape-nav" id="tapeRight">›</button>
+    </div>
+    <div class="tape-controls">
+      <button class="btn btn-sm btn-outline" id="clearTapeBtn">🧹 Очистити стрічку</button>
+      <span class="head-pos-label">Каретка: <span id="headPosDisplay">0</span></span>
+    </div>
+  </section>
+
+  <!-- Workspace -->
+  <div class="workspace">
+
+    <!-- Editor -->
+    <section class="panel editor-panel">
+      <div class="panel-header">
+        <span class="panel-title">✏️ Редактор програми</span>
+        <button class="btn btn-sm btn-outline" id="clearProgramBtn">🗑 Очистити</button>
+      </div>
+      <div class="panel-body editor-body">
+
+        <!-- Шпаргалка -->
+        <div class="cheatsheet">
+          <span class="cs-item"><kbd>></kbd> вправо</span>
+          <span class="cs-item"><kbd>&lt;</kbd> вліво</span>
+          <span class="cs-item"><kbd>V</kbd> мітка</span>
+          <span class="cs-item"><kbd>X</kbd> стерти</span>
+          <span class="cs-item"><kbd>!</kbd> стоп</span>
+          <span class="cs-item"><kbd>?A;B</kbd> розгалуж.</span>
+        </div>
+
+        <textarea id="codeEditor" class="code-editor"
+          spellcheck="false"
+          placeholder="# Приклад&#10;1 V&#10;2 >&#10;3 ?1;4&#10;4 !"></textarea>
+
+        <div id="parseErrors" class="parse-errors" style="display:none"></div>
+      </div>
+    </section>
+
+    <!-- State + log -->
+    <section class="panel state-panel">
+      <div class="panel-header">
+        <span class="panel-title">📊 Стан машини</span>
+      </div>
+      <div class="panel-body">
+        <div class="state-grid">
+          <div class="state-item">
+            <div class="state-key">Поточна команда</div>
+            <div class="state-val" id="stateDisplay">—</div>
+          </div>
+          <div class="state-item">
+            <div class="state-key">Позиція каретки</div>
+            <div class="state-val" id="headDisplay">0</div>
+          </div>
+          <div class="state-item">
+            <div class="state-key">Символ під кареткою</div>
+            <div class="state-val" id="symbolDisplay">□</div>
+          </div>
+          <div class="state-item">
+            <div class="state-key">Виконаних кроків</div>
+            <div class="state-val" id="stepsDisplay">0</div>
+          </div>
+        </div>
+        <div class="log-label">Журнал виконання</div>
+        <div class="log-box" id="logBox"></div>
+      </div>
+    </section>
+
+    <!-- Parsed program view -->
+    <section class="panel cmd-panel">
+      <div class="panel-header">
+        <span class="panel-title">📋 Розпізнана програма</span>
+      </div>
+      <div class="panel-body">
+        <div class="cmd-list" id="cmdList"></div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="machine.js"></script>
+<script src="tasks.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
