@@ -46,22 +46,22 @@ class PostMachine {
     switch (cmd.type) {
       case 'mark':
         this.write(true);
-        info = `${cmd.n}: V — поставити мітку @ ${this.head}`;
+        info = `${cmd.n}: V - поставити мітку @ ${this.head}`;
         break;
 
       case 'erase':
         this.write(false);
-        info = `${cmd.n}: X — стерти мітку @ ${this.head}`;
+        info = `${cmd.n}: X - стерти мітку @ ${this.head}`;
         break;
 
       case 'right':
         this.head++;
-        info = `${cmd.n}: > — каретка → ${this.head}`;
+        info = `${cmd.n}: > - каретка → ${this.head}`;
         break;
 
       case 'left':
         this.head--;
-        info = `${cmd.n}: < — каретка ← ${this.head}`;
+        info = `${cmd.n}: < - каретка ← ${this.head}`;
         break;
 
       case 'branch': {
@@ -80,7 +80,7 @@ class PostMachine {
       case 'stop':
         this.halted = true;
         this.steps++;
-        info = `${cmd.n}: ! — ЗУПИНКА`;
+        info = `${cmd.n}: ! - ЗУПИНКА`;
         return { done: true, reason: 'stop', info, step: this.steps, cmdN: cmd.n };
 
       default:
@@ -122,7 +122,7 @@ function parseProgram(text) {
     if (!line || line.startsWith('#')) return;
 
     const m = line.match(/^(\d+)\s+(.+)$/);
-    if (!m) { errors.push(`Рядок ${li+1}: «${line}» — невірний формат (очікується: N команда)`); return; }
+    if (!m) { errors.push(`Рядок ${li+1}: «${line}» - невірний формат (очікується: N команда)`); return; }
 
     const n    = parseInt(m[1]);
     const body = m[2].trim().toUpperCase();

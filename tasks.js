@@ -14,7 +14,7 @@ const TASKS = {
 
  move_mark: {
     name: 'Перенесення мітки до групи',
-    tape: { 0:true, 4:true, 5:true, 6:true },
+    tape: { 1:true, 4:true, 5:true, 6:true },
     head: 0,
     text:
 `1 >
@@ -36,10 +36,12 @@ const TASKS = {
 2 ?1;3
 3 >
 4 ?5;3
-5 V
+5 v
 6 <
 7 ?8;6
-8 !`
+8 >
+9 X
+10 !`
   },
 
   sub1: {
